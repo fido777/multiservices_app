@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:multiservices_app/splash/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,45 +23,10 @@ class MyApp extends StatelessWidget {
       ],
       //locale: const Locale("es", "CO"),
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF50C2C9)),
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-    );
-  }
-}
-
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  Future<void> _closeSplash() async {
-    Future.delayed(const Duration(seconds: 2), () async {
-      
-    });
-  }
-
-  @override
-  void initState() {
-    _closeSplash();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Image(
-          image: AssetImage('assets/icons/logo_name.png'),
-          width: 300,
-          height: 300,
-        ),
-      ),
     );
   }
 }
