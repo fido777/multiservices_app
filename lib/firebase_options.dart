@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
     storageBucket: 'multiservicios-4623c.appspot.com',
-    iosBundleId: 'com.josedrivera.multiservicesApp',
+    iosBundleId: 'com.example.multiservicesApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
     storageBucket: 'multiservicios-4623c.appspot.com',
-    iosBundleId: 'com.josedrivera.multiservicesApp',
+    iosBundleId: 'com.example.multiservicesApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'multiservicios-4623c.appspot.com',
     measurementId: 'G-XDYXEG9WG7',
   );
+
 }

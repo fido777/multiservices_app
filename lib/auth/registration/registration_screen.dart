@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:multiservices_app/model/user.dart';
+import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
@@ -14,6 +15,8 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final FirebaseApi _firebaseApi = FirebaseApi();
+
   final TextEditingController _name = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
@@ -26,13 +29,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
-  void _onRegisterButtonClicked() {
+  void _createUserInDB(User user) async {
+    String result = await _firebaseApi.createUserInFirestore(user);
+
+    if (result == 'network-request-failed') {
+      _showMessage('Revise su conexión a internet');
+    } else {
+      _showMessage('Usuario creado con éxito');
+    }
+  }
+
+  void _createUser(User user) async {
+    String? result = await _firebaseApi.createUser(user.email, user.password);
+    if (result == 'invalid-email') {
+      _showMessage('El correo electrónico está mal escrito');
+    } else if (result == 'email-already-in-use') {
+      _showMessage('Ya existe una cuenta con ese correo electrónico');
+    } else if (result == 'weak-password') {
+      _showMessage('La contraseña es muy débil');
+    } else if (result == 'network-request-failed') {
+      _showMessage('Revise su conexión a internet');
+    } else {
+      user.uuid = result!; // Se inicializa el identificador único del registro
+      _createUserInDB(user);
+    }
+  }
+
+  void _registerNewUser() {
     if (_name.text.isEmpty || _email.text.isEmpty || _password.text.isEmpty) {
-      _showMessage("ERROR: Debe digitar correo electrónico y contraseña");
+      _showMessage(
+          "ERROR: Debe digitar nombre, correo electrónico y contraseña");
     } else if (_password.text != _repPassword.text) {
       _showMessage("ERROR: Las contraseñas deben de ser iguales");
     } else {
-      var user = User(
+      User user = User(
         uuid: "",
         name: _name.text,
         email: _email.text,
@@ -40,6 +70,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
       _createUser(user);
     }
+  }
+
+  void _onRegisterButtonClicked() {
+    _registerNewUser();
+    Navigator.pop(context);
   }
 
   // Función para limpiar todos los campos de texto
@@ -200,12 +235,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ],
       ),
     );
-  }
-
-  void _createUser(User user) {
-    /* Invocar a Firebase */
-    _showMessage("Usuario creado con éxito");
-    Navigator.pop(context);
   }
 }
 

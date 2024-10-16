@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multiservices_app/splash/splash_screen.dart';
+import 'package:multiservices_app/utils/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MyApp());
 }
 
@@ -22,10 +30,13 @@ class MyApp extends StatelessWidget {
         Locale("en", "US"),
       ],
       //locale: const Locale("es", "CO"),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF50C2C9)),
-        useMaterial3: true,
-      ),
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF50C2C9)),
+      //   useMaterial3: true,
+      // ),
+      themeMode: ThemeMode.system,
+      darkTheme: MaterialTheme.dark(),
+      theme: MaterialTheme.light(),
       home: const SplashScreen(),
     );
   }
