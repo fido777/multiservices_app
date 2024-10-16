@@ -7,6 +7,7 @@ class GlobalTextFormField extends StatefulWidget {
   final Widget? prefixIcon;
   final bool obscureAvailable;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   const GlobalTextFormField({
     super.key,
@@ -16,6 +17,7 @@ class GlobalTextFormField extends StatefulWidget {
     this.prefixIcon,
     this.obscureAvailable = false,
     this.keyboardType,
+    this.validator,
   });
 
   @override
@@ -67,6 +69,8 @@ class _GlobalTextFormFieldState extends State<GlobalTextFormField> {
           hintText: widget.hintText,
         ),
         controller: widget.controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: widget.validator,
       ),
     );
   }

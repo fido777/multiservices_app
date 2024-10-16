@@ -1,13 +1,21 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:multiservices_app/auth/registration/registration_screen.dart';
 import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,15 +46,19 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const GlobalTextFormField(
                   hintText: 'Correo electrónico',
+                  labelText: 'Correo electrónico',
                   keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icon(Icons.email),
                 ),
                 const SizedBox(
                   height: 30,
                 ),
                 const GlobalTextFormField(
                   hintText: 'Contraseña',
+                  labelText: 'Contraseña',
                   obscureAvailable: true,
                   keyboardType: TextInputType.visiblePassword,
+                  prefixIcon: Icon(Icons.lock),
                 ),
                 /* const SizedBox(
                   height: 30,
@@ -65,9 +77,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 FillButtonWidget(
                   text: 'Iniciar sesión',
-                  onPressed: () {
-                    // Navigate to Home
-                  },
+                  onPressed: _onLoginButtonClicked,
                 ),
                 const SizedBox(
                   height: 20,
@@ -85,7 +95,13 @@ class LoginScreen extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () => {/* Navegar a registro */},
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RegistrationScreen()));
+                          },
                       ),
                     ],
                   ),
@@ -99,5 +115,10 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _onLoginButtonClicked() {
+    /* Invocar a Firebase authentication y navegar a NavigationBar si es exitoso */
+    
   }
 }
