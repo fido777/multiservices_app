@@ -5,6 +5,7 @@ import 'package:multiservices_app/auth/registration/registration_screen.dart';
 import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
+import 'package:multiservices_app/widgets/navigation_bar_menu.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,8 +15,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,6 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _onLoginButtonClicked() {
     /* Invocar a Firebase authentication y navegar a NavigationBar si es exitoso */
-    
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const NavigationBarMenu()));
   }
 }
