@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
     authDomain: 'multiservicios-4623c.firebaseapp.com',
-    storageBucket: 'multiservicios-4623c.appspot.com',
+    storageBucket: 'multiservicios-4623c.firebasestorage.app',
     measurementId: 'G-Q3RDHBZWCC',
   );
 
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:173583299191:android:56dcfe7fed226bfd968c72',
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
-    storageBucket: 'multiservicios-4623c.appspot.com',
+    storageBucket: 'multiservicios-4623c.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:173583299191:ios:d568a74768c67299968c72',
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
-    storageBucket: 'multiservicios-4623c.appspot.com',
+    storageBucket: 'multiservicios-4623c.firebasestorage.app',
     iosBundleId: 'com.example.multiservicesApp',
   );
 
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     appId: '1:173583299191:ios:d568a74768c67299968c72',
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
-    storageBucket: 'multiservicios-4623c.appspot.com',
+    storageBucket: 'multiservicios-4623c.firebasestorage.app',
     iosBundleId: 'com.example.multiservicesApp',
   );
 
@@ -82,7 +82,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '173583299191',
     projectId: 'multiservicios-4623c',
     authDomain: 'multiservicios-4623c.firebaseapp.com',
-    storageBucket: 'multiservicios-4623c.appspot.com',
+    storageBucket: 'multiservicios-4623c.firebasestorage.app',
     measurementId: 'G-XDYXEG9WG7',
   );
 
