@@ -60,9 +60,19 @@ class FirebaseApi {
         log("El usuario con uuid $uuid no existe.", level: 800);
         return null;
       }
+
     } on FirebaseException catch (e) {
       log("FirebaseException ${e.code}", level: 1000);
       return null;
     }
+  }
+
+  final CollectionReference usersRef = FirebaseFirestore.instance.collection('user');
+
+  /// Actualizar la URL de la imagen de perfil
+  Future<void> updateUserImageUrl(String userId, String? imageUrl) async {
+    await usersRef.doc(userId).update({
+      'imageUrl': imageUrl,
+    });
   }
 }

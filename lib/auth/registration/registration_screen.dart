@@ -39,8 +39,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  void _createUser(User user) async {
-    String? result = await _firebaseApi.createUser(user.email, user.password);
+  void _createUser(User user, password) async {
+    String? result = await _firebaseApi.createUser(user.email, password);
     if (result == 'invalid-email') {
       _showMessage('El correo electrónico está mal escrito');
     } else if (result == 'email-already-in-use') {
@@ -66,9 +66,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         uuid: "",
         name: _name.text,
         email: _email.text,
-        password: _password.text,
       );
-      _createUser(user);
+      _createUser(user, _password.text);
     }
   }
 
