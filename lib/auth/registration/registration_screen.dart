@@ -21,6 +21,32 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _repPassword = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+
+  // Listas para los dropdown menus
+  final List<String> _cities = [
+    'Bogotá',
+    'Medellín',
+    'Cali',
+    'Barranquilla',
+    'Cartagena',
+    // Agrega las demás ciudades de Colombia
+  ];
+  final List<String> _professions = [
+    'Jardinero',
+    'Constructor',
+    'Mudanzas',
+    'Cerrajero',
+    'Pintor',
+    'Electricista',
+    'Grúas',
+    'Limpiador',
+    'Servicio de comidas',
+    'Servicio de internet y televisión',
+  ];
+
+  String? _selectedCity;
+  String? _selectedProfession;
 
   void _showMessage(String msg) {
     setState(() {
@@ -56,9 +82,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void _registerNewUser() {
-    if (_name.text.isEmpty || _email.text.isEmpty || _password.text.isEmpty) {
+    if (_name.text.isEmpty ||
+        _email.text.isEmpty ||
+        _password.text.isEmpty ||
+        _selectedCity == null ||
+        _selectedProfession == null ||
+        _phone.text.isEmpty) {
       _showMessage(
-          "ERROR: Debe digitar nombre, correo electrónico y contraseña");
+          "ERROR: Debe digitar nombre, correo electrónico, contraseña, ciudad, profesión y teléfono");
     } else if (_password.text != _repPassword.text) {
       _showMessage("ERROR: Las contraseñas deben de ser iguales");
     } else {
@@ -66,6 +97,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         uuid: "",
         name: _name.text,
         email: _email.text,
+        city: _selectedCity,
+        phone: _phone.text,
+        profession: _selectedProfession,
       );
       _createUser(user, _password.text);
     }
@@ -82,6 +116,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _email.clear();
     _password.clear();
     _repPassword.clear();
+    _phone.clear();
+    _selectedCity = null;
+    _selectedProfession = null;
   }
 
   void _onLoginTextClicked() {
@@ -96,6 +133,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _email.dispose();
     _password.dispose();
     _repPassword.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -191,9 +229,65 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       keyboardType: TextInputType.visiblePassword,
                       prefixIcon: const Icon(Icons.lock),
                       obscureAvailable: true,
-                      validator: (String? value) => value!.isLongerThanFive
+                      validator: (String? value) => value == _password.text
                           ? null
-                          : "Contraseña muy corta",
+                          : "Las contraseñas deben ser iguales",
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    GlobalTextFormField(
+                      hintText: 'Ingresa tu número de teléfono',
+                      labelText: 'Ingresa tu número de teléfono',
+                      controller: _phone,
+                      keyboardType: TextInputType.phone,
+                      prefixIcon: const Icon(Icons.phone),
+                      validator: (String? value) =>
+                          value!.isPhoneNumberValid ? null : "Número inválido",
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Ciudad',
+                        prefixIcon: Icon(Icons.location_city),
+                      ),
+                      value: _selectedCity,
+                      hint: const Text('Selecciona tu ciudad'),
+                      items: _cities.map((city) {
+                        return DropdownMenuItem(
+                          value: city,
+                          child: Text(city),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCity = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Profesión',
+                        prefixIcon: Icon(Icons.work),
+                      ),
+                      value: _selectedProfession,
+                      hint: const Text('Selecciona tu profesión'),
+                      items: _professions.map((profession) {
+                        return DropdownMenuItem(
+                          value: profession,
+                          child: Text(profession),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedProfession = value;
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -243,6 +337,10 @@ extension on String {
 
 extension on String {
   bool get isEmailValid => RegExp(
-          r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+          r'^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
       .hasMatch(this);
+}
+
+extension on String {
+  bool get isPhoneNumberValid => RegExp(r'^\+?\d{8,15}$').hasMatch(this);
 }

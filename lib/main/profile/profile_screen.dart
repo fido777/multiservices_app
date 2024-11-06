@@ -109,6 +109,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Text('UUID: ${_user!.uuid}'),
                         Text('Nombre: ${_user!.name}'),
                         Text('Email: ${_user!.email}'),
+                        Text('Ciudad: ${_user!.city ?? 'No disponible'}'),
+                        Text('Teléfono: ${_user!.phone ?? 'No disponible'}'),
+                        Text('Profesión: ${_user!.profession ?? 'No disponible'}'),
                         const SizedBox(height: 20),
                         FilledButton(
                           onPressed: () => _onButtonClicked(context),

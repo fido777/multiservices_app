@@ -18,11 +18,10 @@ class FirebaseApi {
     }
   }
 
-  /// Create documentation for the following function
-  /// Signs in a user with the given email and password.
+  /// Inicia la sesión de un usuario con el correo electrónico y la contraseña indicados.
   ///
-  /// Returns the user's UID if successful, otherwise returns an error code.
-  /// Throws [FirebaseAuthException] if there is a problem with the Firebase connection.
+  /// Devuelve el UID del usuario si la operación es correcta; de lo contrario, devuelve un código de error.
+  /// Lanza [FirebaseAuthException] si hay un problema con la conexión de Firebase.
   Future<String?> signInUser(String emailAddress, String password) async {
     final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: emailAddress,
@@ -60,14 +59,14 @@ class FirebaseApi {
         log("El usuario con uuid $uuid no existe.", level: 800);
         return null;
       }
-
     } on FirebaseException catch (e) {
       log("FirebaseException ${e.code}", level: 1000);
       return null;
     }
   }
 
-  final CollectionReference usersRef = FirebaseFirestore.instance.collection('user');
+  final CollectionReference usersRef =
+      FirebaseFirestore.instance.collection('user');
 
   /// Actualizar la URL de la imagen de perfil
   Future<void> updateUserImageUrl(String userId, String? imageUrl) async {
