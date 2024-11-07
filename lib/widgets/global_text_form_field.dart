@@ -7,6 +7,7 @@ class GlobalTextFormField extends StatefulWidget {
   final Widget? prefixIcon;
   final bool obscureAvailable;
   final TextInputType? keyboardType;
+  final int? maxLines;
   final String? Function(String?)? validator;
 
   const GlobalTextFormField({
@@ -17,6 +18,7 @@ class GlobalTextFormField extends StatefulWidget {
     this.prefixIcon,
     this.obscureAvailable = false,
     this.keyboardType,
+    this.maxLines,
     this.validator,
   });
 
@@ -71,6 +73,7 @@ class _GlobalTextFormFieldState extends State<GlobalTextFormField> {
         controller: widget.controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: widget.validator,
+        maxLines: widget.maxLines ?? 1,
       ),
     );
   }

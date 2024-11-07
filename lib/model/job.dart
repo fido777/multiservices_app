@@ -6,7 +6,7 @@ class Job {
   String date;
   double paymentOffer;
   String resume;
-  String description;
+  String shortDescription;
   String city;
   String neighborhood;
   String address;
@@ -19,39 +19,37 @@ class Job {
     required this.date,
     required this.paymentOffer,
     required this.resume,
-    required this.description,
+    required this.shortDescription,
     required this.city,
     required this.neighborhood,
     required this.address,
   });
 
-  // Método fromJson para crear un objeto Job desde un mapa JSON
+  // Create fromJson method using named constructor
   Job.fromJson(Map<String, dynamic> json)
-      : jobId = json['idTrabajo'],
-        clientId = json['idCliente'],
-        profession = json['clase'],
-        state = json['estado'],
-        date = json['fecha'],
-        paymentOffer = json['ofertaDePago'],
-        resume = json['resumen'],
-        description = json['descripcion'],
-        city = json['ciudad'],
-        neighborhood = json['barrio'],
-        address = json['direccion']
-        ;
+      : jobId = json['jobId'],
+        clientId = json['clientId'],
+        profession = json['profession'],
+        state = json['state'],
+        date = json['date'],
+        paymentOffer = json['paymentOffer'].toDouble(),
+        resume = json['resume'],
+        shortDescription = json['shortDescription'],
+        city = json['city'],
+        neighborhood = json['neighborhood'],
+        address = json['address'];
 
-  // Método toJson para convertir un objeto Job a un mapa JSON
   Map<String, dynamic> toJson() => {
-        'idTrabajo': jobId,
-        'idCliente': clientId,
-        'clase': profession,
-        'estado': state,
-        'fecha': date,
-        'ofertaDePago': paymentOffer,
-        'resumen': resume,
-        'descripcion': description,
-        'ciudad': city,
-        'barrio': neighborhood,
-        'direccion': address,
+        'jobId': jobId,
+        'clientId': clientId,
+        'profession': profession,
+        'state': state,
+        'date': date,
+        'paymentOffer': paymentOffer,
+        'resume': resume,
+        'shortDescription': shortDescription,
+        'city': city,
+        'neighborhood': neighborhood,
+        'address': address,
       };
 }

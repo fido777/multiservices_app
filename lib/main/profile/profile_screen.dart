@@ -75,13 +75,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
     } on FirebaseException catch (e) {
-      log("Ocurrió un error al subir la imagen a Firebase. StorageException ${e.code}", level: 1000, name: "FirebaseApi.uploadProfileImage()");
+      log("Ocurrió un error al subir la imagen a Firebase. StorageException ${e.code}",
+          level: 1000, name: "FirebaseApi.uploadProfileImage()");
       return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    log("Accedido a ProfileScreen", level: 200, name: "ProfileScreen.build()");
     return Scaffold(
       appBar: AppBar(title: const Text("Perfil")),
       body: _isLoading
@@ -111,7 +113,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Text('Email: ${_user!.email}'),
                         Text('Ciudad: ${_user!.city ?? 'No disponible'}'),
                         Text('Teléfono: ${_user!.phone ?? 'No disponible'}'),
-                        Text('Profesión: ${_user!.profession ?? 'No disponible'}'),
+                        Text(
+                            'Profesión: ${_user!.profession ?? 'No disponible'}'),
                         const SizedBox(height: 20),
                         FilledButton(
                           onPressed: () => _onButtonClicked(context),
@@ -136,11 +139,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onButtonClicked(BuildContext context) {
-    FirebaseAuth.instance.signOut().then((_) {
+    try {
+      FirebaseAuth.instance.signOut().then((_) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
+        log("Sesión cerrada con éxito", level: 200, name: '_onButtonClicked()');
+      });
+    } catch (e) {
+      log("Error al cerrar sesión", level: 1000, name: '_onButtonClicked()');
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => const LoginScreen()));
-
-      log("Sesión cerrada con éxito", level: 200);
-    });
+    }
   }
 }

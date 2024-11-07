@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_performance/firebase_performance.dart';
@@ -51,6 +52,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log("Accedido a SplashScreen", level: 200, name: "SplashScreen.build()");
+
     return Scaffold(
       body: Center(
         child: Image(

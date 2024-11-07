@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -49,10 +51,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String? _selectedProfession;
 
   void _showMessage(String msg) {
-    setState(() {
-      SnackBar snackBar = SnackBar(content: Text(msg));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
+    if (mounted) {
+      setState(() {
+        SnackBar snackBar = SnackBar(content: Text(msg));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
+    }
   }
 
   void _createUserInDB(User user) async {
@@ -85,11 +89,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (_name.text.isEmpty ||
         _email.text.isEmpty ||
         _password.text.isEmpty ||
-        _selectedCity == null ||
-        _selectedProfession == null ||
-        _phone.text.isEmpty) {
+        _selectedCity == null
+        ) {
       _showMessage(
-          "ERROR: Debe digitar nombre, correo electrónico, contraseña, ciudad, profesión y teléfono");
+          "ERROR: Debe digitar nombre, correo electrónico, contraseña y ciudad");
     } else if (_password.text != _repPassword.text) {
       _showMessage("ERROR: Las contraseñas deben de ser iguales");
     } else {
@@ -98,16 +101,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         name: _name.text,
         email: _email.text,
         city: _selectedCity,
-        phone: _phone.text,
+        phone: _phone.text.isEmpty ? null : _phone.text,
         profession: _selectedProfession,
       );
       _createUser(user, _password.text);
+      Navigator.pop(context);
     }
   }
 
   void _onRegisterButtonClicked() {
     _registerNewUser();
-    Navigator.pop(context);
   }
 
   // Función para limpiar todos los campos de texto
@@ -139,6 +142,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log("Accedido a RegistrationScreen",
+        level: 200, name: "RegistrationScreen.build()");
     return Scaffold(
       body: Stack(
         children: [
@@ -149,181 +154,187 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Assets.circlesImage,
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Expanded(
-                flex: 4,
-                child: SizedBox(),
-              ),
-              Text(
-                '¡Bienvenido a Bordo!',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.3),
-                child: Text(
-                  'Encontremos a quien necesitas',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        height: 1.6,
+          SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Flexible(
+                  // Use Flexible instead of Expanded
+                  child: SizedBox(
+                    height: 200, // Set a fixed height for the SizedBox
+                  ),
+                ),
+                Text(
+                  '¡Bienvenido a Bordo!',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
                       ),
                 ),
-              ),
-              const Expanded(
-                child: SizedBox(),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.05),
-                child: Column(
-                  children: [
-                    GlobalTextFormField(
-                      hintText: 'Ingresa tu nombre completo',
-                      labelText: 'Ingresa tu nombre completo',
-                      controller: _name,
-                      keyboardType: TextInputType.text,
-                      prefixIcon: const Icon(Icons.person),
-                      validator: (String? value) =>
-                          value!.isLongerThanFive ? null : "Nombre muy corto",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    GlobalTextFormField(
-                      hintText: 'Ingresa tu correo electrónico',
-                      labelText: 'Ingresa tu correo electrónico',
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email),
-                      validator: (String? value) =>
-                          value!.isEmailValid ? null : "Correo inválido",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    GlobalTextFormField(
-                      hintText: 'Ingresa tu contraseña',
-                      labelText: 'Ingresa tu contraseña',
-                      controller: _password,
-                      keyboardType: TextInputType.visiblePassword,
-                      prefixIcon: const Icon(Icons.lock),
-                      obscureAvailable: true,
-                      validator: (String? value) => value!.isLongerThanFive
-                          ? null
-                          : "Contraseña muy corta",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    GlobalTextFormField(
-                      hintText: 'Confirma tu contraseña',
-                      labelText: 'Confirma tu contraseña',
-                      controller: _repPassword,
-                      keyboardType: TextInputType.visiblePassword,
-                      prefixIcon: const Icon(Icons.lock),
-                      obscureAvailable: true,
-                      validator: (String? value) => value == _password.text
-                          ? null
-                          : "Las contraseñas deben ser iguales",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    GlobalTextFormField(
-                      hintText: 'Ingresa tu número de teléfono',
-                      labelText: 'Ingresa tu número de teléfono',
-                      controller: _phone,
-                      keyboardType: TextInputType.phone,
-                      prefixIcon: const Icon(Icons.phone),
-                      validator: (String? value) =>
-                          value!.isPhoneNumberValid ? null : "Número inválido",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Ciudad',
-                        prefixIcon: Icon(Icons.location_city),
-                      ),
-                      value: _selectedCity,
-                      hint: const Text('Selecciona tu ciudad'),
-                      items: _cities.map((city) {
-                        return DropdownMenuItem(
-                          value: city,
-                          child: Text(city),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCity = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Profesión',
-                        prefixIcon: Icon(Icons.work),
-                      ),
-                      value: _selectedProfession,
-                      hint: const Text('Selecciona tu profesión'),
-                      items: _professions.map((profession) {
-                        return DropdownMenuItem(
-                          value: profession,
-                          child: Text(profession),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedProfession = value;
-                        });
-                      },
-                    ),
-                  ],
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
                 ),
-              ),
-              const Expanded(
-                child: SizedBox(),
-              ),
-              FillButtonWidget(
-                text: 'Registrarse',
-                onPressed: _onRegisterButtonClicked,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '¿Ya tienes una cuenta?',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    TextSpan(
-                      text: ' Inicia sesión',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = _onLoginTextClicked,
-                    ),
-                  ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.3),
+                  child: Text(
+                    'Encontremos a quien necesitas',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          height: 1.6,
+                        ),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-            ],
+                const Expanded(
+                  child: SizedBox(),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.05),
+                  child: Column(
+                    children: [
+                      GlobalTextFormField(
+                        hintText: 'Ingresa tu nombre completo',
+                        labelText: 'Ingresa tu nombre completo',
+                        controller: _name,
+                        keyboardType: TextInputType.text,
+                        prefixIcon: const Icon(Icons.person),
+                        validator: (String? value) =>
+                            value!.isLongerThanFive ? null : "Nombre muy corto",
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      GlobalTextFormField(
+                        hintText: 'Ingresa tu correo electrónico',
+                        labelText: 'Ingresa tu correo electrónico',
+                        controller: _email,
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: const Icon(Icons.email),
+                        validator: (String? value) =>
+                            value!.isEmailValid ? null : "Correo inválido",
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      GlobalTextFormField(
+                        hintText: 'Ingresa tu contraseña',
+                        labelText: 'Ingresa tu contraseña',
+                        controller: _password,
+                        keyboardType: TextInputType.visiblePassword,
+                        prefixIcon: const Icon(Icons.lock),
+                        obscureAvailable: true,
+                        validator: (String? value) => value!.isLongerThanFive
+                            ? null
+                            : "Contraseña muy corta",
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      GlobalTextFormField(
+                        hintText: 'Confirma tu contraseña',
+                        labelText: 'Confirma tu contraseña',
+                        controller: _repPassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        prefixIcon: const Icon(Icons.lock),
+                        obscureAvailable: true,
+                        validator: (String? value) => value == _password.text
+                            ? null
+                            : "Las contraseñas deben ser iguales",
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Ciudad',
+                          prefixIcon: Icon(Icons.location_city),
+                        ),
+                        value: _selectedCity,
+                        hint: const Text('Selecciona tu ciudad'),
+                        items: _cities.map((city) {
+                          return DropdownMenuItem(
+                            value: city,
+                            child: Text(city),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCity = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      GlobalTextFormField(
+                        hintText: 'Ingresa tu número de teléfono',
+                        labelText: 'Ingresa tu número de teléfono',
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        prefixIcon: const Icon(Icons.phone),
+                        validator: (String? value) => value!.isPhoneNumberValid
+                            ? null
+                            : "Número inválido",
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Profesión',
+                          prefixIcon: Icon(Icons.work),
+                        ),
+                        value: _selectedProfession,
+                        hint: const Text('Selecciona tu profesión'),
+                        items: _professions.map((profession) {
+                          return DropdownMenuItem(
+                            value: profession,
+                            child: Text(profession),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedProfession = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const Expanded(
+                  child: SizedBox(),
+                ),
+                FillButtonWidget(
+                  text: 'Registrarse',
+                  onPressed: _onRegisterButtonClicked,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '¿Ya tienes una cuenta?',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      TextSpan(
+                        text: ' Inicia sesión',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = _onLoginTextClicked,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -342,5 +353,5 @@ extension on String {
 }
 
 extension on String {
-  bool get isPhoneNumberValid => RegExp(r'^\+?\d{8,15}$').hasMatch(this);
+  bool get isPhoneNumberValid => RegExp(r'3\d{9}$').hasMatch(this);
 }

@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log("Accedido a LoginScreen", level: 200, name: "LoginScreen.build()");
     return Scaffold(
       body: Stack(
         children: [
@@ -129,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+
   }
 
   void _onLoginButtonClicked(String emailAddress, String password) async {
@@ -152,11 +154,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         // Si la autenticación falla, mostrar un mensaje de error
-        _showErrorMessage("Usuario no existente");
+        _showErrorMessage("user-not-found");
       }
     } on FirebaseAuthException catch (e) {
-      log("FirebaseAuthException ${e.code}",
-          name: "_onLoginButtonClicked", level: 800);
+      log("Firebase Authentication Exception: ${e.code}",
+          name: '_onLoginButtonClicked()', level: 800);
       _showErrorMessage(e.code);
     } finally {
       setState(() {
