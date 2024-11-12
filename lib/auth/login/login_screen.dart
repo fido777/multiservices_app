@@ -8,6 +8,7 @@ import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
 import 'package:multiservices_app/widgets/navigation_bar_menu.dart';
+import 'dart:developer';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log("Accedido a LoginScreen", level: 200, name: "LoginScreen.build()");
     return Scaffold(
       body: Stack(
         children: [
@@ -128,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+
   }
 
   void _onLoginButtonClicked(String emailAddress, String password) async {
@@ -136,8 +139,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     String? result;
     try {
+      if (emailAddress == "" || password == "") {
+        _showErrorMessage("no-user-or-password"); // Error personalizado
+        return;
+      }
       // Esperar a que el inicio de sesión se complete
       result = await _firebaseApi.signInUser(emailAddress, password);
+
       if (result != null) {
         // Si el inicio de sesión es exitoso, navegar a la siguiente pantalla
         Navigator.pushReplacement(
@@ -146,14 +154,12 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         // Si la autenticación falla, mostrar un mensaje de error
-        _showErrorMessage();
+        _showErrorMessage("user-not-found");
       }
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException ${e.code}");
-      _showErrorMessage();
-    } on FirebaseException catch (e) {
-      print("FirebaseException ${e.code}");
-      _showErrorMessage();
+      log("Firebase Authentication Exception: ${e.code}",
+          name: '_onLoginButtonClicked()', level: 800);
+      _showErrorMessage(e.code);
     } finally {
       setState(() {
         _isLoading = false; // Detener la animación de carga
@@ -161,10 +167,37 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showErrorMessage() {
+  void _showErrorMessage(String code) {
+    // Create a message for the snackbar depending on the given error code by FirebaseAuthException
+    String message = "";
+    switch (code) {
+      case "user-not-found":
+        message = "No se encontró ningún usuario con ese correo electrónico.";
+        break;
+      case "wrong-password":
+        message = "Contraseña incorrecta.";
+        break;
+      case "network-request-failed":
+        message = "Revise su conexión a internet.";
+        break;
+      case "invalid-email":
+        message = "El correo electrónico está mal escrito.";
+        break;
+      case "email-already-in-use":
+        message = "Ya existe una cuenta con ese correo electrónico.";
+        break;
+      case "weak-password":
+        message = "La contraseña es muy débil.";
+        break;
+      case "no-user-or-password":
+        message = "Debe ingresar un correo electrónico y una contraseña.";
+        break;
+      default:
+        message = "Error al iniciar sesión.";
+        break;
+    }
     setState(() {
-      SnackBar snackBar =
-          const SnackBar(content: Text("Error al iniciar sesión"));
+      SnackBar snackBar = SnackBar(content: Text(message));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
