@@ -6,86 +6,127 @@ import 'package:multiservices_app/model/job.dart';
 
 class FirebaseApi {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<String?> createUser(String emailAddress, String password) async {
+  /// Crea un nuevo usuario en Firebase Authentication con el correo electrónico y la contraseña dados.
+  /// Devuelve el UID del usuario si el registro es exitoso.
+  ///
+  /// Lanza una excepción [FirebaseAuthException] si ocurre un error durante el proceso de creación del usuario.
+  Future<String> createUser(String emailAddress, String password) async {
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-      log("Firebase Authentication: Nuevo usuario creado con UID ${credential.user?.uid}",
+      log("Firebase Authentication: Nuevo usuario creado con UID ${userCredential.user?.uid}",
           level: 200, name: 'FirebaseApi.createUser()');
-      return credential.user?.uid;
+      // Return uid if succeed, throw Exception if failed
+      if (userCredential.user != null) {
+        return userCredential.user!.uid;
+      } else {
+        throw FirebaseAuthException(code: "null-user");
+      }
     } on FirebaseAuthException catch (e) {
       log("Firebase Authentication Exception ${e.code}",
           level: 1000, name: 'FirebaseApi.createUser()');
-      return e.code;
+      rethrow;
     }
   }
 
-  /// Inicia la sesión de un usuario con el correo electrónico y la contraseña indicados.
+  /// Inicia sesión a un usuario existente en Firebase Authentication con el correo electrónico y la contraseña dados.
+  /// Devuelve el UID del usuario si el inicio de sesión es exitoso.
   ///
-  /// Devuelve el UID del usuario si la operación es correcta; de lo contrario, devuelve un código de error.
-  /// Lanza [FirebaseAuthException] si hay un problema con la conexión de Firebase.
+  /// Lanza una excepción [FirebaseAuthException] si ocurre un error durante el proceso de inicio de sesión.
   Future<String?> signInUser(String emailAddress, String password) async {
-    final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailAddress,
-      password: password,
-    );
-    log("Firebase Authentication: Usuario con UID ${credential.user?.uid} ha iniciado sesión.",
-        level: 200, name: 'FirebaseApi.signInUser()');
-    return credential.user?.uid;
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      if (userCredential.user != null) {
+        return userCredential.user!.uid;
+      } else {
+        throw FirebaseAuthException(code: "null-user");
+      }
+    } on FirebaseAuthException catch (e) {
+      log("FirebaseAuthException ${e.code}", name: "signInUser()", level: 1000,);
+      rethrow;
+    }
   }
 
+  /// Crea un nuevo usuario en la colección 'users' de Firestore.
+  /// Recibe un objeto [user_model.User] como argumento.
+  /// Devuelve el UUID del usuario creado.
+  ///
+  /// Lanza una excepción [FirebaseException] si ocurre un error durante la creación del usuario en Firestore.
   Future<String> createUserInFirestore(user_model.User user) async {
+    // Revisar si el UID del usuario está vacío
     try {
-      var db = FirebaseFirestore.instance;
-      await db
+      if (user.uuid.isEmpty) {
+        throw FirebaseException(
+            plugin: 'firebase_firestore', code: 'null-user-uid');
+      }
+
+      await _firestore
           .collection('users')
           .doc(user.uuid)
           .set(user.toJson()); // Creando documento
-      log("Firestore Database: Usuario con UID ${user.uuid} ha sido guardado con éxito.",
-          level: 200, name: 'FirebaseApi.createUserInFirestore()');
+
+      log(
+        "Firestore Database: Usuario con UID ${user.uuid} ha sido guardado con éxito.",
+        level: 200,
+        name: 'FirebaseApi.createUserInFirestore()',
+      );
+
       return user.uuid;
     } on FirebaseException catch (e) {
       log("Firestore Database Exception ${e.code}",
           level: 1000, name: 'FirebaseApi.createUserInFirestore()');
-      return e.code;
+      rethrow; // Relanzar el error para que sea manejado por el caller
     }
   }
 
+  /// Obtiene un usuario de Firestore por su ID.
+  /// Recibe el ID del usuario a obtener.
+  /// Retorna objeto [user_model.User] si el usuario existe, de lo contrario, null.
   Future<user_model.User?> getUserFromFirestoreById(String uuid) async {
     try {
-      var db = FirebaseFirestore.instance;
-
       // Obtener el documento del usuario por su `uuid`
       DocumentSnapshot<Map<String, dynamic>> doc =
-          await db.collection('users').doc(uuid).get();
+          await _firestore.collection('users').doc(uuid).get();
 
+      // doc.exists: This property of DocumentSnapshot is true if the document with the given uuid exists in Firestore.
+      // doc.data() != null: This checks if the document actually contains any data. Even if a document exists, it might be empty.
       if (doc.exists && doc.data() != null) {
         // Convertir el documento de Firestore a una instancia de `User`
-        log("Firestore Database: El usuario con $uuid ha sido encontrado.",
-            level: 200, name: 'FirebaseApi.getUserFromFirestoreById()');
+        log(
+          "Firestore Database: El usuario con $uuid ha sido encontrado.",
+          level: 200,
+          name: 'FirebaseApi.getUserFromFirestoreById()',
+        );
         return user_model.User.fromJson(doc.data()!);
       } else {
-        log("Firestore Database Error: El usuario con uuid $uuid no existe.",
-            level: 800, name: 'FirebaseApi.getUserFromFirestoreById()');
+        log(
+          "Firestore Database Error: El usuario con uuid $uuid no existe.",
+          level: 800,
+          name: 'FirebaseApi.getUserFromFirestoreById()',
+        );
         return null;
       }
     } on FirebaseException catch (e) {
-      log('Firestore Database Exception ${e.code}', level: 1000, name: 'FirebaseApi.getUserFromFirestoreById()');
+      log(
+        'Firestore Database Exception ${e.code}',
+        level: 1000,
+        name: 'FirebaseApi.getUserFromFirestoreById()',
+      );
       return null;
     }
   }
 
-  final CollectionReference usersRef =
-      FirebaseFirestore.instance.collection('users');
-
   /// Actualizar la URL de la imagen de perfil
   Future<void> updateUserImageUrl(String userId, String? imageUrl) async {
     try {
-      await usersRef.doc(userId).update({
+      await _firestore.collection('users').doc(userId).update({
         'imageUrl': imageUrl,
       });
       log('Firebase Firestore: URL de la imagen de perfil actualizada con éxito',

@@ -50,6 +50,7 @@ dependencies:
   firebase_performance: ^0.10.0+8
   firebase_analytics: ^11.3.3
   firebase_storage: ^12.3.4
+  flutter_rating_bar: ^4.0.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1  # Versión actual del paquete

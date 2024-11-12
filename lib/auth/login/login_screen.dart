@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:multiservices_app/auth/registration/registration_screen.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/utils/assets.dart';
+import 'package:multiservices_app/utils/extensions.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
 import 'package:multiservices_app/widgets/navigation_bar_menu.dart';
@@ -110,13 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const RegistrationScreen()));
-                          },
+                          ..onTap = _onRegisterTextClicked,
                       ),
                     ],
                   ),
@@ -130,36 +125,43 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
 
+  void _onRegisterTextClicked() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+    );
   }
 
   void _onLoginButtonClicked(String emailAddress, String password) async {
     setState(() {
       _isLoading = true; // Cambiar el estado a cargando
     });
-    String? result;
     try {
-      if (emailAddress == "" || password == "") {
-        _showErrorMessage("no-user-or-password"); // Error personalizado
+      if (emailAddress.isEmpty || password.isEmpty) {
+        showAuthErrorMessage(
+            code: "no-email-or-password",
+            context: context); // Error personalizado
         return;
       }
       // Esperar a que el inicio de sesión se complete
-      result = await _firebaseApi.signInUser(emailAddress, password);
+      await _firebaseApi.signInUser(emailAddress, password);
 
-      if (result != null) {
-        // Si el inicio de sesión es exitoso, navegar a la siguiente pantalla
+      // Si el inicio de sesión es exitoso, navegar a la siguiente pantalla
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const NavigationBarMenu()),
         );
-      } else {
-        // Si la autenticación falla, mostrar un mensaje de error
-        _showErrorMessage("user-not-found");
       }
     } on FirebaseAuthException catch (e) {
       log("Firebase Authentication Exception: ${e.code}",
           name: '_onLoginButtonClicked()', level: 800);
-      _showErrorMessage(e.code);
+
+      if (mounted) {
+        showAuthErrorMessage(code: e.code, context: context);
+      }
     } finally {
       setState(() {
         _isLoading = false; // Detener la animación de carga
@@ -167,38 +169,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showErrorMessage(String code) {
-    // Create a message for the snackbar depending on the given error code by FirebaseAuthException
-    String message = "";
-    switch (code) {
-      case "user-not-found":
-        message = "No se encontró ningún usuario con ese correo electrónico.";
-        break;
-      case "wrong-password":
-        message = "Contraseña incorrecta.";
-        break;
-      case "network-request-failed":
-        message = "Revise su conexión a internet.";
-        break;
-      case "invalid-email":
-        message = "El correo electrónico está mal escrito.";
-        break;
-      case "email-already-in-use":
-        message = "Ya existe una cuenta con ese correo electrónico.";
-        break;
-      case "weak-password":
-        message = "La contraseña es muy débil.";
-        break;
-      case "no-user-or-password":
-        message = "Debe ingresar un correo electrónico y una contraseña.";
-        break;
-      default:
-        message = "Error al iniciar sesión.";
-        break;
-    }
-    setState(() {
-      SnackBar snackBar = SnackBar(content: Text(message));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
   }
 }

@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Profesión: ${_user!.profession ?? 'No disponible'}'),
                         const SizedBox(height: 20),
                         FilledButton(
-                          onPressed: () => _onButtonClicked(context),
+                          onPressed: () => _onCloseSesionButtonClicked(context),
                           child: const Text("Cerrar sesión"),
                         ),
                       ],
@@ -129,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       const Text("Error al cargar el perfil"),
                       FilledButton(
-                        onPressed: () => _onButtonClicked(context),
+                        onPressed: () => _onCloseSesionButtonClicked(context),
                         child: const Text("Cerrar sesión"),
                       ),
                     ],
@@ -138,15 +138,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _onButtonClicked(BuildContext context) {
+  void _onCloseSesionButtonClicked(BuildContext context) {
     try {
       FirebaseAuth.instance.signOut().then((_) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const LoginScreen()));
-        log("Sesión cerrada con éxito", level: 200, name: '_onButtonClicked()');
+        log("Sesión cerrada con éxito",
+            level: 200, name: '_onCloseSesionButtonClicked()');
       });
     } catch (e) {
-      log("Error al cerrar sesión", level: 1000, name: '_onButtonClicked()');
+      log("Error al cerrar sesión",
+          level: 1000, name: '_onCloseSesionButtonClicked()');
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => const LoginScreen()));
     }
