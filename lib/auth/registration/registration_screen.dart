@@ -1,13 +1,14 @@
 import 'dart:developer';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:multiservices_app/model/user.dart';
+import 'package:multiservices_app/model/user.dart' as model_user;
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
+import 'package:multiservices_app/utils/extensions.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -59,58 +60,55 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  void _createUserInDB(User user) async {
-    String result = await _firebaseApi.createUserInFirestore(user);
-
-    if (result == 'network-request-failed') {
-      _showMessage('Revise su conexión a internet');
-    } else {
-      _showMessage('Usuario creado con éxito');
-    }
-  }
-
-  void _createUser(User user, password) async {
-    String? result = await _firebaseApi.createUser(user.email, password);
-    if (result == 'invalid-email') {
-      _showMessage('El correo electrónico está mal escrito');
-    } else if (result == 'email-already-in-use') {
-      _showMessage('Ya existe una cuenta con ese correo electrónico');
-    } else if (result == 'weak-password') {
-      _showMessage('La contraseña es muy débil');
-    } else if (result == 'network-request-failed') {
-      _showMessage('Revise su conexión a internet');
-    } else {
-      user.uuid = result!; // Se inicializa el identificador único del registro
-      _createUserInDB(user);
-    }
-  }
-
-  void _registerNewUser() {
+  /// No toma argumentos. Recupera los datos del usuario de los controladores de texto.
+  /// Valida los datos del formulario antes de intentar el registro.
+  /// Muestra mensajes de éxito o error usando SnackBar.
+  /// Vuelve a la pantalla anterior si el registro se ha realizado correctamente.
+  Future<void> _registerNewUser() async {
     if (_name.text.isEmpty ||
         _email.text.isEmpty ||
         _password.text.isEmpty ||
-        _selectedCity == null
-        ) {
+        _selectedCity == null) {
       _showMessage(
-          "ERROR: Debe digitar nombre, correo electrónico, contraseña y ciudad");
+          "Debe digitar nombre, correo electrónico, contraseña y ciudad");
     } else if (_password.text != _repPassword.text) {
       _showMessage("ERROR: Las contraseñas deben de ser iguales");
     } else {
-      User user = User(
+      model_user.User user = model_user.User(
         uuid: "",
         name: _name.text,
         email: _email.text,
-        city: _selectedCity,
+        city: _selectedCity!,
         phone: _phone.text.isEmpty ? null : _phone.text,
         profession: _selectedProfession,
       );
-      _createUser(user, _password.text);
-      Navigator.pop(context);
-    }
-  }
 
-  void _onRegisterButtonClicked() {
-    _registerNewUser();
+      try {
+        // Crear usuario en Firebase Authentication y agregar el uid del usuario dado por Firebase Authentication
+        user.uuid = await _firebaseApi.createUser(user.email, _password.text);
+      } on FirebaseAuthException catch (e) {
+        if (mounted) {
+          showAuthErrorMessage(code: e.code, context: context);
+        }
+      }
+
+      try {
+        // Crear usuario en Firestore
+        await _firebaseApi.createUserInFirestore(user);
+
+        _showMessage('Usuario creado con éxito');
+        // Navegar a la pantalla de Login
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      
+      } on FirebaseException catch (e) {
+        if (mounted) {
+          showAuthErrorMessage(context: context, code: e.code);
+        }
+      }
+      
+    }
   }
 
   // Función para limpiar todos los campos de texto
@@ -199,8 +197,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         controller: _name,
                         keyboardType: TextInputType.text,
                         prefixIcon: const Icon(Icons.person),
-                        validator: (String? value) =>
-                            value!.isLongerThanFive ? null : "Nombre muy corto",
+                        validator: (String? value) => value!.isLongerThanSeven
+                            ? null
+                            : "Nombre muy corto",
                       ),
                       const SizedBox(
                         height: 20,
@@ -224,7 +223,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         keyboardType: TextInputType.visiblePassword,
                         prefixIcon: const Icon(Icons.lock),
                         obscureAvailable: true,
-                        validator: (String? value) => value!.isLongerThanFive
+                        validator: (String? value) => value!.isLongerThanSeven
                             ? null
                             : "Contraseña muy corta",
                       ),
@@ -307,7 +306,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 FillButtonWidget(
                   text: 'Registrarse',
-                  onPressed: _onRegisterButtonClicked,
+                  onPressed: _registerNewUser,
                 ),
                 const SizedBox(
                   height: 20,
@@ -340,18 +339,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
-}
-
-extension on String {
-  bool get isLongerThanFive => length > 5;
-}
-
-extension on String {
-  bool get isEmailValid => RegExp(
-          r'^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-      .hasMatch(this);
-}
-
-extension on String {
-  bool get isPhoneNumberValid => RegExp(r'3\d{9}$').hasMatch(this);
 }

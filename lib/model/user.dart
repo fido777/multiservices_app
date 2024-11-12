@@ -2,7 +2,7 @@ class User {
   String uuid;
   String name;
   String email;
-  String? city;
+  String city;
   String? phone;
   String? profession;
   String? imageUrl;
@@ -11,7 +11,7 @@ class User {
     required this.uuid,
     required this.name,
     required this.email,
-    this.city,
+    required this.city,
     this.phone,
     this.profession,
     this.imageUrl,
