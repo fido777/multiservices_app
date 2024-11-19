@@ -4,6 +4,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multiservices_app/splash/splash_screen.dart';
+import 'package:multiservices_app/utils/create_text_theme.dart';
 import 'package:multiservices_app/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = View.of(context).platformDispatcher.platformBrightness;
+    TextTheme textTheme = createTextTheme(context, "Lexend", "Poppins");
+    MaterialTheme theme = MaterialTheme(textTheme);
     return MaterialApp(
       title: 'Multiservicios N & D',
       localizationsDelegates: const [
@@ -47,8 +51,7 @@ class MyApp extends StatelessWidget {
       //   useMaterial3: true,
       // ),
       themeMode: ThemeMode.system,
-      darkTheme: MaterialTheme.dark(),
-      theme: MaterialTheme.light(),
+      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
       home: const SplashScreen(),
     );
   }

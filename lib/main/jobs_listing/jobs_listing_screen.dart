@@ -39,7 +39,11 @@ class _JobsListingScreenState extends State<JobsListingScreen> {
     log("Accedido a JobsListingScreen",
         level: 200, name: "JobsListingScreen.build()");
     return Scaffold(
-      appBar: AppBar(title: const Text("Trabajos Publicados")),
+      appBar: AppBar(
+          title: const Text("Trabajos Publicados"),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          centerTitle: true,
+          elevation: 0),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _jobs.isEmpty
