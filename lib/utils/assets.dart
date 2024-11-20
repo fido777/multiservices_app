@@ -6,4 +6,6 @@ class Assets {
   static String lightCirclesImage = 'assets/svg/shape_light.svg';
 
   static String undrawConstructorsImage = 'assets/svg/constructors.svg';
+
+  static String avatarPlaceholder = 'assets/images/avatar_placeholder.png';
 }
