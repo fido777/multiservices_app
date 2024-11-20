@@ -1,12 +1,29 @@
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 
+part 'user.g.dart'; // This part directive is necessary
+
+@HiveType(typeId: 1) // Ensure the typeId is unique across models
 class User {
+  @HiveField(0)
   String uuid;
+
+  @HiveField(1)
   String name;
+
+  @HiveField(2)
   String email;
+
+  @HiveField(3)
   String city;
+
+  @HiveField(4)
   String? phone;
+
+  @HiveField(5)
   String? profession;
+
+  @HiveField(6)
   String? imageUrl;
 
   User({

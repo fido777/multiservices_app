@@ -8,9 +8,20 @@ import 'package:multiservices_app/utils/create_text_theme.dart';
 import 'package:multiservices_app/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:multiservices_app/model/user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Register the User adapter
+  Hive.registerAdapter(UserAdapter());
+
+  await Hive.openBox<User>('favorites');
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

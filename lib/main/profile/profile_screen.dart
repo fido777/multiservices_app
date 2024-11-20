@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:multiservices_app/main/profile/favorites_screen.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/auth/login/login_screen.dart';
 import 'package:multiservices_app/model/user.dart' as user_model;
@@ -235,22 +237,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   _buildMenuOption(
                                     icon: Icons.star_rounded,
                                     text: 'Favoritos',
-                                    onTap: () {},
+                                    onTap: () {
+                                      final List<user_model.User> favorites =
+                                          getFavorites();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FavoritesScreen(
+                                              favorites: favorites),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   _buildMenuOption(
                                     icon: Icons.privacy_tip,
                                     text: 'Política de privacidad',
-                                    onTap: () {},
+                                    onTap: () {
+                                      // close all snackbars before
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   _buildMenuOption(
                                     icon: Icons.settings,
                                     text: 'Ajustes',
-                                    onTap: () {},
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   _buildMenuOption(
                                     icon: Icons.help,
                                     text: 'Ayuda',
-                                    onTap: () {},
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   _buildMenuOption(
                                     icon: Icons.logout,
@@ -273,6 +313,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ]),
                   ));
+  }
+
+  List<user_model.User> getFavorites() {
+    final favoritesBox = Hive.box<user_model.User>('favorites');
+    return favoritesBox.values.toList();
   }
 
   Widget _buildInfoColumn(

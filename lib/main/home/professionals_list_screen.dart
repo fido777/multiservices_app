@@ -42,7 +42,7 @@ class ProfessionalsListScreen extends StatelessWidget {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Text(
-                'No se encontraron profesionales para esta profesión.',
+                'No hay profesionales para esta profesión.',
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
               ),
             );

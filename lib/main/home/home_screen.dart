@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profesiones"),
+        title: const Text('Busca a quien necesites'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
         elevation: 2,

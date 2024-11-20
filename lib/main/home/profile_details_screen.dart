@@ -1,18 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:multiservices_app/model/user.dart' as user_model;
+import 'package:multiservices_app/model/user.dart';
 import 'package:multiservices_app/utils/assets.dart';
 
-class ProfileDetailsScreen extends StatelessWidget {
-  final user_model.User user;
+import 'package:hive/hive.dart';
+
+class ProfileDetailsScreen extends StatefulWidget {
+  final User user;
 
   const ProfileDetailsScreen({super.key, required this.user});
+
+  @override
+  State<ProfileDetailsScreen> createState() => _ProfileDetailsScreenState();
+}
+
+class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
+  late Box<User> favoritesBox;
+  late bool isFavorited;
+
+  @override
+  void initState() {
+    super.initState();
+    favoritesBox = Hive.box<User>('favorites');
+    isFavorited = favoritesBox.containsKey(widget.user.uuid);
+  }
+
+  void toggleFavorite() {
+    setState(() {
+      if (isFavorited) {
+        favoritesBox.delete(widget.user.uuid);
+      } else {
+        favoritesBox.put(widget.user.uuid, widget.user);
+      }
+      isFavorited = !isFavorited; // Update the state
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          user.name,
+          widget.user.name,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -24,45 +52,39 @@ class ProfileDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Image
             Center(
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey.shade200,
-                backgroundImage: user.imageUrl != null
-                    ? NetworkImage(user.imageUrl!)
+                backgroundImage: widget.user.imageUrl != null
+                    ? NetworkImage(widget.user.imageUrl!)
                     : AssetImage(Assets.avatarPlaceholder) as ImageProvider,
               ),
             ),
             const SizedBox(height: 16),
-
-            // Details
             Text(
-              'Name: ${user.name}',
+              'Name: ${widget.user.name}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'City: ${user.city}',
+              'City: ${widget.user.city}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
-              'Email: ${user.email}',
+              'Email: ${widget.user.email}',
               style: TextStyle(fontSize: 16, color: Colors.blue.shade400),
             ),
             const SizedBox(height: 8),
-            // Additional details can be added here
-            Text(
-              'Phone: ${user.phone ?? 'No disponible'}',
-              style: TextStyle(fontSize: 16, color: Colors.green.shade400),
+            ElevatedButton.icon(
+              onPressed: toggleFavorite, // Toggle favorite state
+              icon: Icon(
+                isFavorited ? Icons.favorite : Icons.favorite_border,
+                color: Colors.red,
+              ),
+              label: Text(isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Profession: ${user.profession}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 8),
           ],
         ),
       ),
