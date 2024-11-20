@@ -9,6 +9,7 @@ import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
 import 'package:multiservices_app/utils/extensions.dart';
+import 'package:multiservices_app/utils/lists.dart' as lists;
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -26,30 +27,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _repPassword = TextEditingController();
   final TextEditingController _phone = TextEditingController();
 
-  // Listas para los dropdown menus
-  final List<String> _cities = [
-    'Bogotá',
-    'Medellín',
-    'Cali',
-    'Barranquilla',
-    'Cartagena',
-    // Agrega las demás ciudades de Colombia
-  ];
-  final List<String> _professions = [
-    'Jardinero',
-    'Constructor',
-    'Mudanzas',
-    'Cerrajero',
-    'Pintor',
-    'Electricista',
-    'Grúas',
-    'Limpiador',
-    'Servicio de comidas',
-    'Servicio de internet y televisión',
-  ];
 
   String? _selectedCity;
   String? _selectedProfession;
+  
+  get _cities => null;
 
   void _showMessage(String msg) {
     if (mounted) {
@@ -286,7 +268,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         value: _selectedProfession,
                         hint: const Text('Selecciona tu profesión'),
-                        items: _professions.map((profession) {
+                        items: lists.professions.map((profession) {
                           return DropdownMenuItem(
                             value: profession,
                             child: Text(profession),
