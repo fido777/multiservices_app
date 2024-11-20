@@ -47,40 +47,51 @@ class _JobsListingScreenState extends State<JobsListingScreen> {
         centerTitle: true,
         elevation: 4,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _jobs.isEmpty
-                    ? Center(
-                        child: Text(
-                          "No hay trabajos publicados",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        itemCount: _jobs.length,
-                        itemBuilder: (context, index) {
-                          return JobItemWidget(job: _jobs[index]);
-                        },
-                      ),
-          ),
-
-          // SVG at the bottom of the screen
-          Padding(
-            padding: const EdgeInsets.only(bottom: 100.0),
+          Positioned(
+            top: 0,
+            left: 0,
             child: SvgPicture.asset(
-              Assets.undrawConstructorsImage,
-              height: 200,
-              fit: BoxFit.contain,
+              Assets.circlesImage,
             ),
+          ),
+          Column(
+            children: [
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _jobs.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No hay trabajos publicados",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            itemCount: _jobs.length,
+                            itemBuilder: (context, index) {
+                              return JobItemWidget(job: _jobs[index]);
+                            },
+                          ),
+              ),
+
+              // SVG at the bottom of the screen
+              Padding(
+                padding: const EdgeInsets.only(bottom: 100.0),
+                child: SvgPicture.asset(
+                  Assets.undrawConstructorsImage,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
           ),
         ],
       ),

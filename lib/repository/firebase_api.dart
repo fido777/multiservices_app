@@ -183,4 +183,25 @@ class FirebaseApi {
     }
   }
 
+  Future<List<user_model.User>> getProfessionalsByProfession(String profession) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(FirestoreCollectionsEnum.users.name)
+          .where('profession', isEqualTo: profession)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => user_model.User.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      log(
+          'Error obteniendo profesionales por profesión: $e',
+          level: 1000,
+          name: 'FirebaseApi.getProfessionalsByProfession');
+      return []; // Return an empty list on error
+    }
+  }
+
+
+
 }

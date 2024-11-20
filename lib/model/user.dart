@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 class User {
   String uuid;
   String name;
@@ -36,4 +38,79 @@ class User {
         "profession": profession,
         "imageUrl": imageUrl,
       };
+
+  User copyWith({
+    String? uuid,
+    String? name,
+    String? email,
+    String? city,
+    ValueGetter<String?>? phone,
+    ValueGetter<String?>? profession,
+    ValueGetter<String?>? imageUrl,
+  }) {
+    return User(
+      uuid: uuid ?? this.uuid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      city: city ?? this.city,
+      phone: phone != null ? phone() : this.phone,
+      profession: profession != null ? profession() : this.profession,
+      imageUrl: imageUrl != null ? imageUrl() : this.imageUrl,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uuid': uuid,
+      'name': name,
+      'email': email,
+      'city': city,
+      'phone': phone,
+      'profession': profession,
+      'imageUrl': imageUrl,
+    };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      uuid: map['uuid'] ?? '',
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      city: map['city'] ?? '',
+      phone: map['phone'],
+      profession: map['profession'],
+      imageUrl: map['imageUrl'],
+    );
+  }
+
+
+  @override
+  String toString() {
+    return 'User(uuid: $uuid, name: $name, email: $email, city: $city, phone: $phone, profession: $profession, imageUrl: $imageUrl)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is User &&
+      other.uuid == uuid &&
+      other.name == name &&
+      other.email == email &&
+      other.city == city &&
+      other.phone == phone &&
+      other.profession == profession &&
+      other.imageUrl == imageUrl;
+  }
+
+  @override
+  int get hashCode {
+    return uuid.hashCode ^
+      name.hashCode ^
+      email.hashCode ^
+      city.hashCode ^
+      phone.hashCode ^
+      profession.hashCode ^
+      imageUrl.hashCode;
+  }
 }

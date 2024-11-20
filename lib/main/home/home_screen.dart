@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:multiservices_app/main/home/professionals_list_screen.dart';
+import 'package:multiservices_app/utils/assets.dart';
 import 'package:multiservices_app/utils/lists.dart' as lists;
 
 class HomeScreen extends StatelessWidget {
@@ -13,104 +16,72 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 2,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: lists.professions.length,
-          itemBuilder: (context, index) {
-            final profession = lists.professions[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ProfessionDetailScreen(profession: profession),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: SvgPicture.asset(
+              Assets.circlesImage,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.builder(
+              itemCount: lists.professions.length,
+              itemBuilder: (context, index) {
+                final profession = lists.professions[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProfessionalsListScreen(profession: profession),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    color: Colors.transparent,
+                    elevation: 0,
+                    margin: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: ListTile(
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16.0),
+                      leading: Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 2,
+                          ),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      title: Text(
+                        profession,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_right_sharp,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 36,
+                      ),
+                    ),
                   ),
                 );
               },
-              child: Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                ),
-                elevation: 0,
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16.0),
-                  leading: const Icon(
-                    Icons.work_outline,
-                    color: Colors.blueAccent,
-                    size: 40,
-                  ),
-                  title: Text(
-                    profession,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                    size: 18,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  // Method to get a custom icon for each profession
-  IconData _getProfessionIcon(String profession) {
-    switch (profession.toLowerCase()) {
-      case 'doctor':
-        return Icons.medical_services;
-      case 'engineer':
-        return Icons.engineering;
-      case 'teacher':
-        return Icons.school;
-      case 'artist':
-        return Icons.brush;
-      case 'chef':
-        return Icons.restaurant;
-      case 'mechanic':
-        return Icons.build;
-      case 'architect':
-        return Icons.architecture;
-      case 'nurse':
-        return Icons.local_hospital;
-      case 'scientist':
-        return Icons.science;
-      case 'photographer':
-        return Icons.camera_alt;
-      case 'lawyer':
-        return Icons.gavel;
-      default:
-        return Icons.work_outline;
-    }
-  }
-}
-
-class ProfessionDetailScreen extends StatelessWidget {
-  final String profession;
-
-  const ProfessionDetailScreen({super.key, required this.profession});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(profession),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Text(
-          'Details about $profession',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

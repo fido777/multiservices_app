@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/auth/login/login_screen.dart';
 import 'package:multiservices_app/model/user.dart' as user_model;
+import 'package:multiservices_app/utils/assets.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -91,174 +93,185 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       centerTitle: true,
                       elevation: 4,
                     ),
-                    body: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              // First Rectangle (Profile info with background color)
-                              Container(
-                                width: double.infinity,
-                                height: 260,
-                                color: Theme.of(context).colorScheme.primary,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Profile picture
-                                    GestureDetector(
-                                      onTap: _uploadProfileImage,
-                                      child: CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: Colors.white,
-                                        backgroundImage: _user!.imageUrl != null
-                                            ? NetworkImage(_user!.imageUrl!)
-                                            : const AssetImage(
-                                                    'assets/images/avatar_placeholder.png')
-                                                as ImageProvider,
+                    body: Stack(children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // First Rectangle (Profile info with background color)
+                                Container(
+                                  width: double.infinity,
+                                  height: 260,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Profile picture
+                                      GestureDetector(
+                                        onTap: _uploadProfileImage,
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor: Colors.white,
+                                          backgroundImage: _user!.imageUrl !=
+                                                  null
+                                              ? NetworkImage(_user!.imageUrl!)
+                                              : const AssetImage(
+                                                      'assets/images/avatar_placeholder.png')
+                                                  as ImageProvider,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    // User Name
-                                    Text(
-                                      _user!.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black,
+                                      const SizedBox(height: 10),
+                                      // User Name
+                                      Text(
+                                        _user!.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    // User Email
-                                    Text(
-                                      _user!.email,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
+                                      // User Email
+                                      Text(
+                                        _user!.email,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
 
-                              // Second Rectangle (City, Profession, Contact)
-                              Positioned(
-                                left: 16,
-                                right: 16,
-                                top: 220,
-                                child: Center(
-                                  child: Container(
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceTint,
-                                      borderRadius: BorderRadius.zero,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        const SizedBox(
-                                          width: 40,
-                                        ),
-                                        // City Info
-                                        _buildInfoColumn(
-                                          icon: Icons.location_city,
-                                          label: 'Ciudad',
-                                          value: _user!.city,
-                                        ),
+                                // Second Rectangle (City, Profession, Contact)
+                                Positioned(
+                                  left: 16,
+                                  right: 16,
+                                  top: 220,
+                                  child: Center(
+                                    child: Container(
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceTint,
+                                        borderRadius: BorderRadius.zero,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          const SizedBox(
+                                            width: 40,
+                                          ),
+                                          // City Info
+                                          _buildInfoColumn(
+                                            icon: Icons.location_city,
+                                            label: 'Ciudad',
+                                            value: _user!.city,
+                                          ),
 
-                                        // Vertical Divider
-                                        _verticalDivider(),
+                                          // Vertical Divider
+                                          _verticalDivider(),
 
-                                        // Profession Info
-                                        _buildInfoColumn(
-                                          icon: Icons.work,
-                                          label: 'Profesión',
-                                          value: _user!.profession ??
-                                              'No disponible',
-                                        ),
+                                          // Profession Info
+                                          _buildInfoColumn(
+                                            icon: Icons.work,
+                                            label: 'Profesión',
+                                            value: _user!.profession ??
+                                                'No disponible',
+                                          ),
 
-                                        // Vertical Divider
-                                        _verticalDivider(),
+                                          // Vertical Divider
+                                          _verticalDivider(),
 
-                                        // Contact Action
-                                        GestureDetector(
-                                            onTap: () {
-                                              // Add logic to contact professional here
-                                            },
-                                            child: Row(children: [
-                                              // Add an Icon of Icons.contact_page_rounded and an icon of Icons.arrow_right_sharp
-                                              Icon(Icons.contact_page_rounded,
-                                                  size: 46,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSecondary),
-                                              const SizedBox(width: 4),
-                                              Icon(Icons.arrow_right_sharp,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSecondary),
-                                            ])),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                      ],
+                                          // Contact Action
+                                          GestureDetector(
+                                              onTap: () {
+                                                // Add logic to contact professional here
+                                              },
+                                              child: Row(children: [
+                                                // Add an Icon of Icons.contact_page_rounded and an icon of Icons.arrow_right_sharp
+                                                Icon(Icons.contact_page_rounded,
+                                                    size: 46,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSecondary),
+                                                const SizedBox(width: 4),
+                                                Icon(Icons.arrow_right_sharp,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSecondary),
+                                              ])),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(
-                              height: 70), // Space below the second rectangle
-
-                          // Menu Options
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Column(
-                              children: [
-                                _buildMenuOption(
-                                  icon: Icons.star_rounded,
-                                  text: 'Favoritos',
-                                  onTap: () {},
-                                ),
-                                _buildMenuOption(
-                                  icon: Icons.privacy_tip,
-                                  text: 'Política de privacidad',
-                                  onTap: () {},
-                                ),
-                                _buildMenuOption(
-                                  icon: Icons.settings,
-                                  text: 'Ajustes',
-                                  onTap: () {},
-                                ),
-                                _buildMenuOption(
-                                  icon: Icons.help,
-                                  text: 'Ayuda',
-                                  onTap: () {},
-                                ),
-                                _buildMenuOption(
-                                  icon: Icons.logout,
-                                  text: 'Cerrar sesión',
-                                  onTap: () =>
-                                      _onCloseSesionButtonClicked(context),
-                                ),
                               ],
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(
+                                height: 70), // Space below the second rectangle
+
+                            // Menu Options
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Column(
+                                children: [
+                                  _buildMenuOption(
+                                    icon: Icons.star_rounded,
+                                    text: 'Favoritos',
+                                    onTap: () {},
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.privacy_tip,
+                                    text: 'Política de privacidad',
+                                    onTap: () {},
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.settings,
+                                    text: 'Ajustes',
+                                    onTap: () {},
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.help,
+                                    text: 'Ayuda',
+                                    onTap: () {},
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.logout,
+                                    text: 'Cerrar sesión',
+                                    onTap: () =>
+                                        _onCloseSesionButtonClicked(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        child: SvgPicture.asset(
+                          Assets.lightCirclesImage,
+                        ),
+                      ),
+                    ]),
                   ));
   }
 
