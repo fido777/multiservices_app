@@ -4,7 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:multiservices_app/model/user.dart' as user_model;
 import 'package:multiservices_app/model/job.dart';
 
+// Create an Enum for the names of the firestore collections users and jobs
+enum FirestoreCollectionsEnum { users, jobs }
+
 class FirebaseApi {
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -68,7 +72,7 @@ class FirebaseApi {
       }
 
       await _firestore
-          .collection('users')
+          .collection(FirestoreCollectionsEnum.users.name)
           .doc(user.uuid)
           .set(user.toJson()); // Creando documento
 
@@ -93,16 +97,16 @@ class FirebaseApi {
     try {
       // Obtener el documento del usuario por su `uuid`
       DocumentSnapshot<Map<String, dynamic>> doc =
-          await _firestore.collection('users').doc(uuid).get();
+          await _firestore.collection(FirestoreCollectionsEnum.users.name).doc(uuid).get();
 
       // doc.exists: This property of DocumentSnapshot is true if the document with the given uuid exists in Firestore.
       // doc.data() != null: This checks if the document actually contains any data. Even if a document exists, it might be empty.
       if (doc.exists && doc.data() != null) {
-        // Convertir el documento de Firestore a una instancia de `User`
         log(
           "Firestore Database: El usuario con $uuid ha sido encontrado.",
           level: 200,
           name: 'FirebaseApi.getUserFromFirestoreById()',
+        // Convertir el documento de Firestore a una instancia de `User`
         );
         return user_model.User.fromJson(doc.data()!);
       } else {
@@ -126,7 +130,7 @@ class FirebaseApi {
   /// Actualizar la URL de la imagen de perfil
   Future<void> updateUserImageUrl(String userId, String? imageUrl) async {
     try {
-      await _firestore.collection('users').doc(userId).update({
+      await _firestore.collection(FirestoreCollectionsEnum.users.name).doc(userId).update({
         'imageUrl': imageUrl,
       });
       log('Firebase Firestore: URL de la imagen de perfil actualizada con éxito',
@@ -139,7 +143,7 @@ class FirebaseApi {
 
   Future<String?> generateJobId() async {
     try {
-      DocumentReference docRef = await _firestore.collection('jobs').add({});
+      DocumentReference docRef = await _firestore.collection(FirestoreCollectionsEnum.jobs.name).add({});
       log('Firestore Database: Nuevo ID del trabajo generado: ${docRef.id}',
           level: 200, name: 'FirebaseApi.generateJobId()');
       return docRef.id;
@@ -152,7 +156,7 @@ class FirebaseApi {
 
   Future<String> createJobInFirestore(Job job) async {
     try {
-      await _firestore.collection('jobs').doc(job.jobId).set(job.toJson());
+      await _firestore.collection(FirestoreCollectionsEnum.jobs.name).doc(job.jobId).set(job.toJson());
       log('Firebase Firestore: Trabajo con ID ${job.jobId} creado con éxito',
           level: 200, name: 'FirebaseApi.createJobInFirestore()');
       return 'success';
@@ -165,7 +169,7 @@ class FirebaseApi {
 
   Future<List<Job>> getJobsFromFirestore() async {
     try {
-      QuerySnapshot querySnapshot = await _firestore.collection('jobs').get();
+      QuerySnapshot querySnapshot = await _firestore.collection(FirestoreCollectionsEnum.jobs.name).get();
       List<Job> jobs = querySnapshot.docs.map((doc) {
         return Job.fromJson(doc.data() as Map<String, dynamic>);
       }).toList();
@@ -178,4 +182,26 @@ class FirebaseApi {
       return [];
     }
   }
+
+  Future<List<user_model.User>> getProfessionalsByProfession(String profession) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(FirestoreCollectionsEnum.users.name)
+          .where('profession', isEqualTo: profession)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => user_model.User.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      log(
+          'Error obteniendo profesionales por profesión: $e',
+          level: 1000,
+          name: 'FirebaseApi.getProfessionalsByProfession');
+      return []; // Return an empty list on error
+    }
+  }
+
+
+
 }

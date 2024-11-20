@@ -1,13 +1,16 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:multiservices_app/main/profile/favorites_screen.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/auth/login/login_screen.dart';
 import 'package:multiservices_app/model/user.dart' as user_model;
+import 'package:multiservices_app/utils/assets.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,15 +20,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  user_model.User? _user; // Variable para almacenar los datos del usuario
+  user_model.User? _user;
   bool _isLoading = true;
-  final ImagePicker _picker =
-      ImagePicker(); // ImagePicker para seleccionar imagen
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // Cargar los datos del usuario cuando la pantalla se inicializa
+    _loadUserData();
   }
 
   Future<void> _loadUserData() async {
@@ -44,8 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  /// Selecciona y sube la imagen a Firebase Storage, y actualiza el modelo del
-  /// usuario con la url de la imagen
   Future<void> _uploadProfileImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -53,10 +53,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       File imageFile = File(pickedFile.path);
       String userId = FirebaseAuth.instance.currentUser!.uid;
 
-      // Subir imagen a Firebase Storage
       String? downloadURL = await uploadProfileImage(imageFile, userId);
 
-      // Actualizar URL de imagen en Firestore y en el modelo
       FirebaseApi api = FirebaseApi();
       await api.updateUserImageUrl(userId, downloadURL);
 
@@ -66,7 +64,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  /// Sube la imagen de perfil a Firebase Storage
   Future<String?> uploadProfileImage(File imageFile, String userId) async {
     try {
       final storageRef =
@@ -75,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
     } on FirebaseException catch (e) {
-      log("Ocurrió un error al subir la imagen a Firebase. StorageException ${e.code}",
+      log("Error uploading image to Firebase: ${e.code}",
           level: 1000, name: "FirebaseApi.uploadProfileImage()");
       return null;
     }
@@ -84,73 +81,300 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     log("Accedido a ProfileScreen", level: 200, name: "ProfileScreen.build()");
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Perfil")),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _user != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Mostrar imagen de perfil o un placeholder si no hay imagen
-                        GestureDetector(
-                          onTap: _uploadProfileImage, // Subir imagen al tocar
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundImage: _user!.imageUrl != null
-                                ? NetworkImage(_user!.imageUrl!)
-                                : const AssetImage(
-                                        'assets/images/avatar_placeholder.png')
-                                    as ImageProvider,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text('UUID: ${_user!.uuid}'),
-                        Text('Nombre: ${_user!.name}'),
-                        Text('Email: ${_user!.email}'),
-                        Text('Ciudad: ${_user!.city ?? 'No disponible'}'),
-                        Text('Teléfono: ${_user!.phone ?? 'No disponible'}'),
-                        Text(
-                            'Profesión: ${_user!.profession ?? 'No disponible'}'),
-                        const SizedBox(height: 20),
-                        FilledButton(
-                          onPressed: () => _onCloseSesionButtonClicked(context),
-                          child: const Text("Cerrar sesión"),
-                        ),
-                      ],
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _user == null
+                ? const Center(child: Text("Error al cargar el perfil"))
+                : Scaffold(
+                    appBar: AppBar(
+                      title: const Text("Perfil"),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.inversePrimary,
+                      centerTitle: true,
+                      elevation: 4,
                     ),
-                  ),
-                )
-              : Center(
-                  child: Column(
-                    children: [
-                      const Text("Error al cargar el perfil"),
-                      FilledButton(
-                        onPressed: () => _onCloseSesionButtonClicked(context),
-                        child: const Text("Cerrar sesión"),
+                    body: Stack(children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // First Rectangle (Profile info with background color)
+                                Container(
+                                  width: double.infinity,
+                                  height: 260,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Profile picture
+                                      GestureDetector(
+                                        onTap: _uploadProfileImage,
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor: Colors.white,
+                                          backgroundImage: _user!.imageUrl !=
+                                                  null
+                                              ? NetworkImage(_user!.imageUrl!)
+                                              : const AssetImage(
+                                                      'assets/images/avatar_placeholder.png')
+                                                  as ImageProvider,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      // User Name
+                                      Text(
+                                        _user!.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      // User Email
+                                      Text(
+                                        _user!.email,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Second Rectangle (City, Profession, Contact)
+                                Positioned(
+                                  left: 16,
+                                  right: 16,
+                                  top: 220,
+                                  child: Center(
+                                    child: Container(
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceTint,
+                                        borderRadius: BorderRadius.zero,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          const SizedBox(
+                                            width: 40,
+                                          ),
+                                          // City Info
+                                          _buildInfoColumn(
+                                            icon: Icons.location_city,
+                                            label: 'Ciudad',
+                                            value: _user!.city,
+                                          ),
+
+                                          // Vertical Divider
+                                          _verticalDivider(),
+
+                                          // Profession Info
+                                          _buildInfoColumn(
+                                            icon: Icons.work,
+                                            label: 'Profesión',
+                                            value: _user!.profession ??
+                                                'No disponible',
+                                          ),
+
+                                          // Vertical Divider
+                                          _verticalDivider(),
+
+                                          // Contact Action
+                                          GestureDetector(
+                                              onTap: () {
+                                                // Add logic to contact professional here
+                                              },
+                                              child: Row(children: [
+                                                // Add an Icon of Icons.contact_page_rounded and an icon of Icons.arrow_right_sharp
+                                                Icon(Icons.contact_page_rounded,
+                                                    size: 46,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSecondary),
+                                                const SizedBox(width: 4),
+                                                Icon(Icons.arrow_right_sharp,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSecondary),
+                                              ])),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(
+                                height: 70), // Space below the second rectangle
+
+                            // Menu Options
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Column(
+                                children: [
+                                  _buildMenuOption(
+                                    icon: Icons.star_rounded,
+                                    text: 'Favoritos',
+                                    onTap: () {
+                                      final List<user_model.User> favorites =
+                                          getFavorites();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FavoritesScreen(
+                                              favorites: favorites),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.privacy_tip,
+                                    text: 'Política de privacidad',
+                                    onTap: () {
+                                      // close all snackbars before
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.settings,
+                                    text: 'Ajustes',
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.help,
+                                    text: 'Ayuda',
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Esta opción aún no está disponible.'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  _buildMenuOption(
+                                    icon: Icons.logout,
+                                    text: 'Cerrar sesión',
+                                    onTap: () =>
+                                        _onCloseSesionButtonClicked(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        child: SvgPicture.asset(
+                          Assets.lightCirclesImage,
+                        ),
+                      ),
+                    ]),
+                  ));
+  }
+
+  List<user_model.User> getFavorites() {
+    final favoritesBox = Hive.box<user_model.User>('favorites');
+    return favoritesBox.values.toList();
+  }
+
+  Widget _buildInfoColumn(
+      {required IconData icon, required String label, required String value}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+              fontSize: 14, color: Theme.of(context).colorScheme.onSecondary),
+        ),
+      ],
     );
   }
+
+  Widget _buildMenuOption(
+      {required IconData icon,
+      required String text,
+      required VoidCallback onTap}) {
+    return ListTile(
+      leading:
+          Icon(icon, color: Theme.of(context).colorScheme.primaryContainer),
+      trailing: Icon(Icons.arrow_right_sharp,
+          size: 32, color: Theme.of(context).colorScheme.secondary),
+      title: Text(text, style: const TextStyle(fontSize: 16)),
+      onTap: onTap,
+    );
+  }
+
+  Widget _verticalDivider() => VerticalDivider(
+        color: Theme.of(context).colorScheme.onSecondary,
+        thickness: 1.5,
+        width: 20, // Space between items and divider
+        indent: 10, // Top padding
+        endIndent: 10, // Bottom padding
+      );
 
   void _onCloseSesionButtonClicked(BuildContext context) {
     try {
       FirebaseAuth.instance.signOut().then((_) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
         log("Sesión cerrada con éxito",
             level: 200, name: '_onCloseSesionButtonClicked()');
       });
     } catch (e) {
       log("Error al cerrar sesión",
           level: 1000, name: '_onCloseSesionButtonClicked()');
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
     }
   }
 }

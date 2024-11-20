@@ -6,6 +6,7 @@ import 'package:multiservices_app/model/job.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
 import 'package:multiservices_app/widgets/fill_button_widget.dart';
 import 'package:multiservices_app/widgets/global_text_form_field.dart';
+import 'package:multiservices_app/utils/lists.dart' as lists;
 
 class PublishNewJobScreen extends StatefulWidget {
   const PublishNewJobScreen({super.key});
@@ -43,19 +44,6 @@ class _PublishNewJobScreenState extends State<PublishNewJobScreen> {
 
   late String _selectedCity;
 
-  final List<String> _professions = [
-    'Cerrajeros',
-    'Pintores',
-    'Electricistas',
-    'Constructores',
-    'Grúas',
-    'Jardineros',
-    'Limpiadores',
-    'Mudanzas',
-    'Servicio de comidas',
-    'Servicio de internet y televisión',
-  ];
-
   late String _selectedProfession;
   late String _userId;
   DateTime _selectedDateTime = DateTime.now();
@@ -64,7 +52,7 @@ class _PublishNewJobScreenState extends State<PublishNewJobScreen> {
   void initState() {
     _selectedState = _states.first;
     _selectedCity = _cities.first;
-    _selectedProfession = _professions.first;
+    _selectedProfession = lists.professions.first;
     _getCurrentUser();
     super.initState();
   }
@@ -193,7 +181,7 @@ class _PublishNewJobScreenState extends State<PublishNewJobScreen> {
                 ),
                 value: _selectedProfession,
                 hint: const Text('Selecciona la categoría'),
-                items: _professions.map((profession) {
+                items: lists.professions.map((profession) {
                   return DropdownMenuItem(
                     value: profession,
                     child: Text(profession),
