@@ -27,12 +27,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _repPassword = TextEditingController();
   final TextEditingController _phone = TextEditingController();
 
-
   String? _selectedCity;
   String? _selectedProfession;
   
-  get _cities => null;
-
   void _showMessage(String msg) {
     if (mounted) {
       setState(() {
@@ -57,7 +54,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _showMessage("ERROR: Las contraseñas deben de ser iguales");
     } else {
       model_user.User user = model_user.User(
-        uuid: "",
+        id: "",
         name: _name.text,
         email: _email.text,
         city: _selectedCity!,
@@ -67,7 +64,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       try {
         // Crear usuario en Firebase Authentication y agregar el uid del usuario dado por Firebase Authentication
-        user.uuid = await _firebaseApi.createUser(user.email, _password.text);
+        user.id = await _firebaseApi.createUser(user.email, _password.text);
       } on FirebaseAuthException catch (e) {
         if (mounted) {
           showAuthErrorMessage(code: e.code, context: context);
@@ -233,7 +230,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         value: _selectedCity,
                         hint: const Text('Selecciona tu ciudad'),
-                        items: _cities.map((city) {
+                        items: lists.cities.map((city) {
                           return DropdownMenuItem(
                             value: city,
                             child: Text(city),

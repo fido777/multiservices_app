@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multiservices_app/main/profile/favorites_screen.dart';
 import 'package:multiservices_app/repository/firebase_api.dart';
@@ -102,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Stack(
                               clipBehavior: Clip.none,
                               children: [
-                                // First Rectangle (Profile info with background color)
+                                // Información de perfil con color de fondo
                                 Container(
                                   width: double.infinity,
                                   height: 260,
@@ -146,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
 
-                                // Second Rectangle (City, Profession, Contact)
+                                // Ciudad, Profesión, Contacto
                                 Positioned(
                                   left: 16,
                                   right: 16,
@@ -238,13 +237,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     icon: Icons.star_rounded,
                                     text: 'Favoritos',
                                     onTap: () {
-                                      final List<user_model.User> favorites =
-                                          getFavorites();
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => FavoritesScreen(
-                                              favorites: favorites),
+                                          builder: (context) => const FavoritesScreen(),
                                         ),
                                       );
                                     },
@@ -313,11 +309,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ]),
                   ));
-  }
-
-  List<user_model.User> getFavorites() {
-    final favoritesBox = Hive.box<user_model.User>('favorites');
-    return favoritesBox.values.toList();
   }
 
   Widget _buildInfoColumn(

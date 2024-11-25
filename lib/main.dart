@@ -14,13 +14,12 @@ import 'package:multiservices_app/model/user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   // Initialize Hive
   await Hive.initFlutter();
 
   // Register the User adapter
   Hive.registerAdapter(UserAdapter());
-
-  await Hive.openBox<User>('favorites');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

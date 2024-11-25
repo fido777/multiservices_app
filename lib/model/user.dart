@@ -6,7 +6,7 @@ part 'user.g.dart'; // This part directive is necessary
 @HiveType(typeId: 1) // Ensure the typeId is unique across models
 class User {
   @HiveField(0)
-  String uuid;
+  String id;
 
   @HiveField(1)
   String name;
@@ -27,7 +27,7 @@ class User {
   String? imageUrl;
 
   User({
-    required this.uuid,
+    required this.id,
     required this.name,
     required this.email,
     required this.city,
@@ -37,17 +37,16 @@ class User {
   });
 
   User.fromJson(Map<String, dynamic> json)
-      : uuid = json['uuid'],
+      : id = json['uuid'],
         name = json['name'],
         email = json['email'],
         city = json['city'],
         phone = json['phone'],
         profession = json['profession'],
-        imageUrl = json['imageUrl']
-        ;
+        imageUrl = json['imageUrl'];
 
   Map<String, dynamic> toJson() => {
-        "uuid": uuid,
+        "uuid": id,
         "name": name,
         "email": email,
         "city": city,
@@ -57,7 +56,7 @@ class User {
       };
 
   User copyWith({
-    String? uuid,
+    String? id,
     String? name,
     String? email,
     String? city,
@@ -66,7 +65,7 @@ class User {
     ValueGetter<String?>? imageUrl,
   }) {
     return User(
-      uuid: uuid ?? this.uuid,
+      id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       city: city ?? this.city,
@@ -78,7 +77,7 @@ class User {
 
   Map<String, dynamic> toMap() {
     return {
-      'uuid': uuid,
+      'uuid': id,
       'name': name,
       'email': email,
       'city': city,
@@ -90,7 +89,7 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      uuid: map['uuid'] ?? '',
+      id: map['uuid'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       city: map['city'] ?? '',
@@ -100,34 +99,33 @@ class User {
     );
   }
 
-
   @override
   String toString() {
-    return 'User(uuid: $uuid, name: $name, email: $email, city: $city, phone: $phone, profession: $profession, imageUrl: $imageUrl)';
+    return 'User(uuid: $id, name: $name, email: $email, city: $city, phone: $phone, profession: $profession, imageUrl: $imageUrl)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is User &&
-      other.uuid == uuid &&
-      other.name == name &&
-      other.email == email &&
-      other.city == city &&
-      other.phone == phone &&
-      other.profession == profession &&
-      other.imageUrl == imageUrl;
+        other.id == id &&
+        other.name == name &&
+        other.email == email &&
+        other.city == city &&
+        other.phone == phone &&
+        other.profession == profession &&
+        other.imageUrl == imageUrl;
   }
 
   @override
   int get hashCode {
-    return uuid.hashCode ^
-      name.hashCode ^
-      email.hashCode ^
-      city.hashCode ^
-      phone.hashCode ^
-      profession.hashCode ^
-      imageUrl.hashCode;
+    return id.hashCode ^
+        name.hashCode ^
+        email.hashCode ^
+        city.hashCode ^
+        phone.hashCode ^
+        profession.hashCode ^
+        imageUrl.hashCode;
   }
 }

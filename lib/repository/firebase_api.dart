@@ -8,7 +8,6 @@ import 'package:multiservices_app/model/job.dart';
 enum FirestoreCollectionsEnum { users, jobs }
 
 class FirebaseApi {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -53,7 +52,11 @@ class FirebaseApi {
         throw FirebaseAuthException(code: "null-user");
       }
     } on FirebaseAuthException catch (e) {
-      log("FirebaseAuthException ${e.code}", name: "signInUser()", level: 1000,);
+      log(
+        "FirebaseAuthException ${e.code}",
+        name: "signInUser()",
+        level: 1000,
+      );
       rethrow;
     }
   }
@@ -66,23 +69,23 @@ class FirebaseApi {
   Future<String> createUserInFirestore(user_model.User user) async {
     // Revisar si el UID del usuario está vacío
     try {
-      if (user.uuid.isEmpty) {
+      if (user.id.isEmpty) {
         throw FirebaseException(
             plugin: 'firebase_firestore', code: 'null-user-uid');
       }
 
       await _firestore
           .collection(FirestoreCollectionsEnum.users.name)
-          .doc(user.uuid)
+          .doc(user.id)
           .set(user.toJson()); // Creando documento
 
       log(
-        "Firestore Database: Usuario con UID ${user.uuid} ha sido guardado con éxito.",
+        "Firestore Database: Usuario con UID ${user.id} ha sido guardado con éxito.",
         level: 200,
         name: 'FirebaseApi.createUserInFirestore()',
       );
 
-      return user.uuid;
+      return user.id;
     } on FirebaseException catch (e) {
       log("Firestore Database Exception ${e.code}",
           level: 1000, name: 'FirebaseApi.createUserInFirestore()');
@@ -96,8 +99,10 @@ class FirebaseApi {
   Future<user_model.User?> getUserFromFirestoreById(String uuid) async {
     try {
       // Obtener el documento del usuario por su `uuid`
-      DocumentSnapshot<Map<String, dynamic>> doc =
-          await _firestore.collection(FirestoreCollectionsEnum.users.name).doc(uuid).get();
+      DocumentSnapshot<Map<String, dynamic>> doc = await _firestore
+          .collection(FirestoreCollectionsEnum.users.name)
+          .doc(uuid)
+          .get();
 
       // doc.exists: This property of DocumentSnapshot is true if the document with the given uuid exists in Firestore.
       // doc.data() != null: This checks if the document actually contains any data. Even if a document exists, it might be empty.
@@ -106,7 +111,7 @@ class FirebaseApi {
           "Firestore Database: El usuario con $uuid ha sido encontrado.",
           level: 200,
           name: 'FirebaseApi.getUserFromFirestoreById()',
-        // Convertir el documento de Firestore a una instancia de `User`
+          // Convertir el documento de Firestore a una instancia de `User`
         );
         return user_model.User.fromJson(doc.data()!);
       } else {
@@ -130,7 +135,10 @@ class FirebaseApi {
   /// Actualizar la URL de la imagen de perfil
   Future<void> updateUserImageUrl(String userId, String? imageUrl) async {
     try {
-      await _firestore.collection(FirestoreCollectionsEnum.users.name).doc(userId).update({
+      await _firestore
+          .collection(FirestoreCollectionsEnum.users.name)
+          .doc(userId)
+          .update({
         'imageUrl': imageUrl,
       });
       log('Firebase Firestore: URL de la imagen de perfil actualizada con éxito',
@@ -143,7 +151,9 @@ class FirebaseApi {
 
   Future<String?> generateJobId() async {
     try {
-      DocumentReference docRef = await _firestore.collection(FirestoreCollectionsEnum.jobs.name).add({});
+      DocumentReference docRef = await _firestore
+          .collection(FirestoreCollectionsEnum.jobs.name)
+          .add({});
       log('Firestore Database: Nuevo ID del trabajo generado: ${docRef.id}',
           level: 200, name: 'FirebaseApi.generateJobId()');
       return docRef.id;
@@ -156,7 +166,10 @@ class FirebaseApi {
 
   Future<String> createJobInFirestore(Job job) async {
     try {
-      await _firestore.collection(FirestoreCollectionsEnum.jobs.name).doc(job.jobId).set(job.toJson());
+      await _firestore
+          .collection(FirestoreCollectionsEnum.jobs.name)
+          .doc(job.jobId)
+          .set(job.toJson());
       log('Firebase Firestore: Trabajo con ID ${job.jobId} creado con éxito',
           level: 200, name: 'FirebaseApi.createJobInFirestore()');
       return 'success';
@@ -169,7 +182,8 @@ class FirebaseApi {
 
   Future<List<Job>> getJobsFromFirestore() async {
     try {
-      QuerySnapshot querySnapshot = await _firestore.collection(FirestoreCollectionsEnum.jobs.name).get();
+      QuerySnapshot querySnapshot =
+          await _firestore.collection(FirestoreCollectionsEnum.jobs.name).get();
       List<Job> jobs = querySnapshot.docs.map((doc) {
         return Job.fromJson(doc.data() as Map<String, dynamic>);
       }).toList();
@@ -183,7 +197,8 @@ class FirebaseApi {
     }
   }
 
-  Future<List<user_model.User>> getProfessionalsByProfession(String profession) async {
+  Future<List<user_model.User>> getProfessionalsByProfession(
+      String profession) async {
     try {
       final querySnapshot = await _firestore
           .collection(FirestoreCollectionsEnum.users.name)
@@ -194,14 +209,9 @@ class FirebaseApi {
           .map((doc) => user_model.User.fromJson(doc.data()))
           .toList();
     } catch (e) {
-      log(
-          'Error obteniendo profesionales por profesión: $e',
-          level: 1000,
-          name: 'FirebaseApi.getProfessionalsByProfession');
+      log('Error obteniendo profesionales por profesión: $e',
+          level: 1000, name: 'FirebaseApi.getProfessionalsByProfession');
       return []; // Return an empty list on error
     }
   }
-
-
-
 }

@@ -1,7 +1,10 @@
+// profile_details_screen.dart
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:multiservices_app/model/user.dart';
+import 'package:multiservices_app/repository/favorites_crud.dart';
 import 'package:multiservices_app/utils/assets.dart';
-
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:hive/hive.dart';
 
 class ProfileDetailsScreen extends StatefulWidget {
@@ -14,25 +17,36 @@ class ProfileDetailsScreen extends StatefulWidget {
 }
 
 class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
-  late Box<User> favoritesBox;
-  late bool isFavorited;
+  late final auth.FirebaseAuth _auth;
+  late final FavoritesCrud _favoritesCrud;
+  late final String _userId;
 
   @override
   void initState() {
     super.initState();
-    favoritesBox = Hive.box<User>('favorites');
-    isFavorited = favoritesBox.containsKey(widget.user.uuid);
+    _init();
+  }
+
+  Future<void> _openFavoritesBox() async {
+    if (_userId.isNotEmpty) {
+      // Initialize the user's specific Hive box for favorites
+      await Hive.openBox<User>('favorites_$_userId');
+    }
+  }
+
+  Future<void> _init() async {
+    _auth = auth.FirebaseAuth.instance;
+    _userId = _auth.currentUser?.uid ?? '';
+    _favoritesCrud = FavoritesCrud(userId: _userId);
+    _openFavoritesBox();
   }
 
   void toggleFavorite() {
-    setState(() {
-      if (isFavorited) {
-        favoritesBox.delete(widget.user.uuid);
-      } else {
-        favoritesBox.put(widget.user.uuid, widget.user);
-      }
-      isFavorited = !isFavorited; // Update the state
-    });
+    if (_favoritesCrud.isFavorite(widget.user.id)) {
+      _favoritesCrud.deleteFavorite(widget.user.id);
+    } else {
+      _favoritesCrud.addFavorite(widget.user);
+    }
   }
 
   @override
@@ -77,13 +91,20 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
               style: TextStyle(fontSize: 16, color: Colors.blue.shade400),
             ),
             const SizedBox(height: 8),
-            ElevatedButton.icon(
-              onPressed: toggleFavorite, // Toggle favorite state
-              icon: Icon(
-                isFavorited ? Icons.favorite : Icons.favorite_border,
-                color: Colors.red,
-              ),
-              label: Text(isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'),
+            ValueListenableBuilder(
+              valueListenable: _favoritesCrud.box.listenable(),
+              builder: (context, Box<User> box, _) {
+                final isFavorited = box.containsKey(widget.user.id);
+                return ElevatedButton.icon(
+                  onPressed: toggleFavorite, // Toggle favorite state
+                  icon: Icon(
+                    isFavorited ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.red,
+                  ),
+                  label: Text(
+                      isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'),
+                );
+              },
             ),
           ],
         ),
